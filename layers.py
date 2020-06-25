@@ -7,6 +7,7 @@ class Dense:
         self.shape = units
         self.epsilon_init = epsilon_init
         self.type = 'Dense'
+        self.trainable = True
 
         if activation == 'relu':
             self.activate = lambda input: relu(self, input)
@@ -22,14 +23,15 @@ class Dense:
 
 
 class Flatten:
-    def __init__(self, shape):
+    def __init__(self, input_shape):
         size = 1
-        for dim in shape:
+        for dim in input_shape:
             size *= dim
 
         self.activate = lambda input: input.reshape(input.shape[0],-1)
         self.shape = size
         self.type = 'Flatten'
+        self.trainable = False
 
     def compile(self, prev):
         return self.shape
