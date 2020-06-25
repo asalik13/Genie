@@ -17,8 +17,7 @@ class Model:
             prev = layer.compile(prev)
 
     def feedforward(self, input):
-        print(addOnes(input).shape)
         passThrough = input
         for layer in self.layers:
             passThrough = layer.activate(passThrough)
-        print(passThrough)
+        return(passThrough)
