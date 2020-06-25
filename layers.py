@@ -1,4 +1,5 @@
 import numpy as np
+from utils import addOnes
 
 
 class Dense:
@@ -6,16 +7,17 @@ class Dense:
         self.shape = units
         self.epsilon_init = epsilon_init
         self.type = 'Dense'
+
         if activation == 'relu':
             self.activate = lambda input: np.maximum(self.weights * input, 0)
         elif activation == 'sigmoid':
             self.activate = lambda input: 1 / \
-                (1 + np.exp(self.weights * input))
+                (1 + np.exp(-1 * (addOnes(input)@self.weights.T)))
 
     def compile(self, prev):
         self.weights = np.random.rand(
-            self.shape, 1 + prev) * 2 * self.epsilon_init - self.epsilon_init
-        return self.shape + 1
+            self.shape, prev +1) * 2 * self.epsilon_init - self.epsilon_init
+        return self.shape
 
     def forward(self, input):
         return self.activate(input)
@@ -27,7 +29,7 @@ class Flatten:
         for dim in shape:
             size *= dim
 
-        self.activate = lambda input: np.ndarray.flatten(input)
+        self.activate = lambda input: input.reshape(1,-1)
         self.shape = size
         self.type = 'Flatten'
 
