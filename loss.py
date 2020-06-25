@@ -12,8 +12,11 @@ def binary_cross_entropy(self, y, lambda_=0.0):
     reg *= lambda_ / (2 * m)
 
     loss = (-1 / m) * np.sum((np.log(final) * y) +
-                             np.log(1 - final) * (1 - y)) + reg
+                             np.log(1 - final) * (1 - y))
     return loss + reg
+
+
+
 
 
 def getLoss(loss):
