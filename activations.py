@@ -17,4 +17,10 @@ def softmax(self, input):
         result.append(np.exp(
             i) / np.sum(np.exp(i)))
 
-    return(np.array(result))
+    return np.array(result)
+
+
+def tanh(self, input):
+    x = addOnes(input)@self.weights.T
+    t = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+    return t
