@@ -19,6 +19,7 @@ class Dense:
     def compile(self, prev):
         self.weights = np.random.rand(
             self.shape, prev + 1) * 2 * self.epsilon_init - self.epsilon_init
+
         return self.shape
 
 

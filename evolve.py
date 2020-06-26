@@ -20,7 +20,6 @@ def population(count, length, min, max):
     length: the number of values per individual
     min: the minimum possible value in an individual's list of values
     max: the maximum possible value in an individual's list of values
-
     """
     return [individual(length, min, max) for x in range(count)]
 

@@ -1,5 +1,6 @@
 from utils import addOnes
 from loss import getLoss
+import numpy as np
 
 
 class Model:
@@ -17,18 +18,33 @@ class Model:
         prev = None
         for layer in self.layers:
             prev = layer.compile(prev)
-        self.loss = lambda y,lambda_ = 0.0: getLoss(loss)(self,y,lambda_)
+        self.loss = lambda y, lambda_ = 0.0: getLoss(loss)(self, y, lambda_)
 
-    def feedforward(self, input):
+    def feedforward(self,input):
         passThrough = input
         for layer in self.layers:
             passThrough = layer.activate(passThrough)
         self.final = passThrough
         return(self.final)
 
-    def getWeights(self):
-        weights = []
+    def setWeights(self, flattened_weights):
+        prevSize = 0
         for layer in self.layers:
-            if(layer.trainable):
-                weights.append(layer.weights)
-        return weights
+            if layer.trainable:
+
+                size = 1
+                shape = layer.weights.shape
+                for dim in shape:
+                    size *= dim
+                size += prevSize
+                layer.weights = flattened_weights[prevSize:size].reshape(
+                    *shape)
+                prevSize = size
+
+    def getWeights(self):
+        flattened_weights = np.array([])
+        for layer in self.layers:
+            if layer.trainable:
+                flattened_weights = np.concatenate(
+                    [flattened_weights, layer.weights.ravel()])
+        return flattened_weights
