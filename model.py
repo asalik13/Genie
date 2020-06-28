@@ -44,8 +44,8 @@ class Model:
                     size *= dim
                 size += prevSize
 
-                layer.weights = np.array(flattened_weights[prevSize:size]).reshape(
-                    *shape)
+                layer.weights = np.array(
+                    flattened_weights[prevSize:size]).reshape(*shape)
                 prevSize = size
 
     def getWeights(self):
@@ -62,7 +62,7 @@ class Model:
 
     def fitness(self, individual, target):
         self.setWeights(individual)
-        data = self.feedforward()
+        self.feedforward()
         return self.loss(target)
 
     def train(self, popSize, y):
@@ -76,9 +76,9 @@ class Model:
             p = self.optimizer.evolve(p, y)
             p = p[:popSize]
             newGrade = self.optimizer.grade(p, y)
-            #asteroid = abs(prevGrade - newGrade)
-            #p += self.optimizer.population(int(popSize / asteroid))
+            # asteroid = abs(prevGrade - newGrade)
+            # p += self.optimizer.population(int(popSize / asteroid))
 
             if newGrade - prevGrade < 0.00001:
-                p = p[:5] + self.optimizer.population(10*popSize)
+                p = p[:5] + self.optimizer.population(10 * popSize)
             prevGrade = newGrade

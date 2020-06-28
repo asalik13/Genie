@@ -32,7 +32,7 @@ class GA:
         for i in range(randint(1, len(individual))):
             pos_to_mutate = randint(0, len(individual) - 1)
             mutated = np.copy(individual)
-            mutated[pos_to_mutate] = uniform(-2,2)
+            mutated[pos_to_mutate] = uniform(-2, 2)
         return mutated
 
     def evolve(self, pop, target):
