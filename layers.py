@@ -1,5 +1,5 @@
 import numpy as np
-from activations import relu, sigmoid, softmax
+from activations import relu, sigmoid, softmax, tanh
 
 
 class Dense:
@@ -13,12 +13,15 @@ class Dense:
             self.activate = lambda input: relu(self, input)
         elif activation == 'sigmoid':
             self.activate = lambda input: sigmoid(self, input)
+        elif activation == 'tanh':
+            self.activate = lambda input: tanh(self, input)
         elif activation == 'softmax':
             self.activate = lambda input: softmax(self, input)
 
     def compile(self, prev):
+
         self.weights = np.random.rand(
-            self.shape, prev + 1) * 2 * self.epsilon_init - self.epsilon_init
+            self.shape, prev + 1)
 
         return self.shape
 
@@ -29,7 +32,7 @@ class Flatten:
         for dim in input_shape:
             size *= dim
 
-        self.activate = lambda input: input.reshape(input.shape[0],-1)
+        self.activate = lambda input: input.reshape(input.shape[0], -1)
         self.shape = size
         self.type = 'Flatten'
         self.trainable = False
