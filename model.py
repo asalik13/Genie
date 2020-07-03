@@ -32,7 +32,7 @@ class Model:
         for layer in self.layers:
             passThrough = layer.activate(passThrough)
         self.final = passThrough
-        return(self.final)
+        return self.final
 
     def setWeights(self, flattened_weights):
         prevSize = 0
@@ -71,17 +71,16 @@ class Model:
     def train(self, popSize, y):
         p = self.optimizer.population(popSize)
 
-        prevGrade = self.optimizer.grade(p, y)
+        prevGrade = self.optimizer.fitness(p[0], y)
 
         for i in range(1000):
-            print(prevGrade, self.optimizer.fitness(p[0], y))
-
+            print(prevGrade, len(p))
             p = self.optimizer.evolve(p, y)
             p = p[:popSize]
-            newGrade = self.optimizer.grade(p, y)
-            # asteroid = abs(prevGrade - newGrade)
-            # p += self.optimizer.population(int(popSize / asteroid))
+            newGrade = self.optimizer.fitness(p[0], y)
+            asteroid = abs(prevGrade - newGrade) + 0.01
+            p += self.optimizer.population(int(popSize / asteroid))
 
-            if newGrade - prevGrade < 0.00001:
-                p = p[:500] + self.optimizer.population(popSize - 500)
+            # if newGrade - prevGrade < 0.00001:
+            #    p = p[:500] + self.optimizer.population(popSize - 500)
             prevGrade = newGrade

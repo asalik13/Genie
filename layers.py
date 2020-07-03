@@ -40,7 +40,7 @@ class Flatten:
         self.type = 'Flatten'
         self.trainable = False
 
-    def activate(self,input):
+    def activate(self, input):
         return input.reshape(input.shape[0], -1)
 
     def compile(self, prev):

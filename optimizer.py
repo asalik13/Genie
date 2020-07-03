@@ -21,7 +21,6 @@ class GA:
             p.terminate()
             return pop
 
-
     def f(self, x):
         return self.fitness(x, self.target)
 

@@ -9,4 +9,4 @@ if __name__ == '__main__':
     my_model.compile(loss='binary_cross_entropy')
     my_model.setInput(np.random.rand(100, 1, 1))
     y = np.random.rand(100, 10)
-    my_model.train(10000, y)
+    my_model.train(100, y)
