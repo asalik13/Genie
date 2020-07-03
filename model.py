@@ -58,7 +58,7 @@ class Model:
                 flattened_weights.extend(layer.weights.ravel())
         return flattened_weights
 
-    def individual(self):
+    def individual(self, _):
         self.compile(loss='binary_cross_entropy')
         weights = self.getWeights()
         return weights
@@ -83,5 +83,5 @@ class Model:
             # p += self.optimizer.population(int(popSize / asteroid))
 
             if newGrade - prevGrade < 0.00001:
-                p = p[:500] + self.optimizer.population(popSize-500)
+                p = p[:500] + self.optimizer.population(popSize - 500)
             prevGrade = newGrade

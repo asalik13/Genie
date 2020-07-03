@@ -16,8 +16,11 @@ class GA:
 
         count: the number of individuals in the population
         """
-        pop = [self.individual()for x in range(count)]
-        return pop
+        with Pool(30) as p:
+            pop = p.map(self.individual, range(count))
+            p.terminate()
+            return pop
+
 
     def f(self, x):
         return self.fitness(x, self.target)
@@ -44,9 +47,9 @@ class GA:
         return mutated
 
     def evolve(self, pop, target):
-        retain = 0.5
+        retain = 0.2
         random_select = 0.1
-        mutate = 0.3
+        mutate = 0.7
         graded = [(self.fitness(x, target), x) for x in pop]
         graded = [x[1] for x in sorted(graded, key=lambda x: x[0])]
         retain_length = int(len(graded) * retain)
