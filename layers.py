@@ -8,15 +8,20 @@ class Dense:
         self.epsilon_init = epsilon_init
         self.type = 'Dense'
         self.trainable = True
+        self.activation = activation
 
+    def activate(self, input):
+        activation = self.activation
+        output = None
         if activation == 'relu':
-            self.activate = lambda input: relu(self, input)
+            output = relu(self, input)
         elif activation == 'sigmoid':
-            self.activate = lambda input: sigmoid(self, input)
+            output = sigmoid(self, input)
         elif activation == 'tanh':
-            self.activate = lambda input: tanh(self, input)
+            output = tanh(self, input)
         elif activation == 'softmax':
-            self.activate = lambda input: softmax(self, input)
+            output = softmax(self, input)
+        return output
 
     def compile(self, prev):
 
@@ -31,11 +36,12 @@ class Flatten:
         size = 1
         for dim in input_shape:
             size *= dim
-
-        self.activate = lambda input: input.reshape(input.shape[0], -1)
         self.shape = size
         self.type = 'Flatten'
         self.trainable = False
+
+    def activate(self,input):
+        return input.reshape(input.shape[0], -1)
 
     def compile(self, prev):
         return self.shape

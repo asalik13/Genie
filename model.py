@@ -16,10 +16,13 @@ class Model:
         # print("Layer shape " + str(layer.shape))
 
     def compile(self, loss):
+        self.lossType = loss
         prev = None
         for layer in self.layers:
             prev = layer.compile(prev)
-        self.loss = lambda y, lambda_ = 0.0: getLoss(loss)(self, y, lambda_)
+
+    def loss(self, y, lambda_=0.0):
+        return getLoss(self.lossType)(self, y, lambda_)
 
     def setInput(self, input):
         self.input = input
@@ -80,5 +83,5 @@ class Model:
             # p += self.optimizer.population(int(popSize / asteroid))
 
             if newGrade - prevGrade < 0.00001:
-                p = p[:5] + self.optimizer.population(10 * popSize)
+                p = p[:500] + self.optimizer.population(popSize-500)
             prevGrade = newGrade

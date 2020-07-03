@@ -2,6 +2,7 @@ from random import uniform, randint, random, sample
 from functools import reduce
 from operator import add
 import numpy as np
+from multiprocessing import Pool
 
 
 class GA:
@@ -18,10 +19,17 @@ class GA:
         pop = [self.individual()for x in range(count)]
         return pop
 
+    def f(self, x):
+        return self.fitness(x, self.target)
+
     def grade(self, pop, target):
         'Find average fitness for a population.'
-        summed = reduce(add, (self.fitness(x, target) for x in pop))
-        return summed / (len(pop) * 1.0)
+        self.target = target
+        with Pool(30) as p:
+            mapped = p.map(self.f, pop)
+            summed = reduce(add, mapped)
+            return summed / (len(pop) * 1.0)
+            p.terminate()
 
     def mutate(self, individual):
         """
@@ -36,7 +44,7 @@ class GA:
         return mutated
 
     def evolve(self, pop, target):
-        retain = 0.2
+        retain = 0.5
         random_select = 0.1
         mutate = 0.3
         graded = [(self.fitness(x, target), x) for x in pop]
@@ -73,10 +81,6 @@ class GA:
 
             children.append(newChild)
         parents.extend(children)
-        for i in parents:
-            if(np.array(i).size == 0):
-                print("meh")
-                exit(1)
         parents = [(self.fitness(x, target), x) for x in parents]
         parents = [x[1] for x in sorted(parents, key=lambda x: x[0])]
         return parents
