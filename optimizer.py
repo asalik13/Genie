@@ -16,7 +16,7 @@ class GA:
 
         count: the number of individuals in the population
         """
-        with Pool(30) as p:
+        with Pool(2) as p:
             pop = p.map(self.individual, range(count))
             p.terminate()
             return pop
@@ -27,7 +27,7 @@ class GA:
     def grade(self, pop, target):
         'Find average fitness for a population.'
         self.target = target
-        with Pool(30) as p:
+        with Pool(2) as p:
             mapped = p.map(self.f, pop)
             summed = reduce(add, mapped)
             return summed / (len(pop) * 1.0)
@@ -52,7 +52,7 @@ class GA:
         graded = [(self.fitness(x, target), x) for x in pop]
         graded = [x[1] for x in sorted(graded, key=lambda x: x[0])]
         retain_length = int(len(graded) * retain)
-        parents = graded
+        parents = graded[:retain_length]
         # randomly add other individuals to
         # promote genetic diversity
         for individual in graded[retain_length:]:

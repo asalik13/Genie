@@ -1,20 +1,13 @@
 import numpy as np
 from utils import addOnes
-
+from activations import sigmoid
 
 def relu(self, input):
     return np.maximum(addOnes(input)@self.weights.T, 0)
 
 
 def sigmoid(self, input):
-    inputMat = addOnes(input)@self.weights.T
-    activ = _sigmoid(inputMat)
-    grad = activ * (1 - activ)
-    return activ, grad
-
-
-def _sigmoid(input):
-    return 1 / (1 + np.exp(-1 * input))
+    return 1 / (1 + np.exp(-1 * (addOnes(input)@self.weights.T)))
 
 
 def softmax(self, input):

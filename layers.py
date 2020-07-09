@@ -9,6 +9,7 @@ class Dense:
         self.type = 'Dense'
         self.trainable = True
         self.activation = activation
+        self.last_layer = False
 
     def activate(self, input):
         activation = self.activation
@@ -16,7 +17,7 @@ class Dense:
         if activation == 'relu':
             output = relu(self, input)
         elif activation == 'sigmoid':
-            output = sigmoid(self, input)
+            output,_ = sigmoid(self, input)
         elif activation == 'tanh':
             output = tanh(self, input)
         elif activation == 'softmax':

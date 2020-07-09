@@ -18,6 +18,7 @@ class Model:
     def compile(self, loss):
         self.lossType = loss
         prev = None
+        self.layers[-1].last_layer = True
         for layer in self.layers:
             prev = layer.compile(prev)
 
@@ -58,6 +59,18 @@ class Model:
                 flattened_weights.extend(layer.weights.ravel())
         return flattened_weights
 
+    def backpropagation(self, target):
+        finalLayer = self.layers[-1]
+        deltas = []
+        currdelta = finalLayer - target
+        deltas.append(currdelta)
+        for layer in reversed(self.layers[:-1]):
+            deltas.append(currdelta@layer.weights[:, 1:])
+
+    def cost(self, target):
+        self.feedforward()
+        J = self.loss(target)
+
     def individual(self, _):
         self.compile(loss='binary_cross_entropy')
         weights = self.getWeights()
@@ -68,19 +81,19 @@ class Model:
         self.feedforward()
         return self.loss(target)
 
-    def train(self, popSize, y):
+    def train(self, popSize, y, epochs=1000):
         p = self.optimizer.population(popSize)
 
-        prevGrade = self.optimizer.fitness(p[0], y)
+        prevGrade = self.optimizer.grade(p, y)
 
-        for i in range(1000):
-            print(prevGrade, len(p))
+        for i in range(epochs):
+            print(prevGrade, len(p), self.optimizer.fitness(p[0], y))
             p = self.optimizer.evolve(p, y)
             p = p[:popSize]
-            newGrade = self.optimizer.fitness(p[0], y)
-            asteroid = abs(prevGrade - newGrade) + 0.01
+            newGrade = self.optimizer.grade(p, y)
+            asteroid = abs(prevGrade - newGrade) + 0.5
             p += self.optimizer.population(int(popSize / asteroid))
 
-            # if newGrade - prevGrade < 0.00001:
-            #    p = p[:500] + self.optimizer.population(popSize - 500)
+            if newGrade - prevGrade < 0.00001:
+                p += self.optimizer.population(5 * popSize)
             prevGrade = newGrade
