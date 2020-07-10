@@ -48,16 +48,15 @@ class Model:
         deltas.append(currdelta)
 
         for i in range(len(trainableLayers)):
-            print(trainableLayers[i].grad.shape, currdelta.shape)
-            currdelta = currdelta@(trainableLayers[i].weights[:, 1:])*trainableLayers[i-1].grad
+            currdelta = currdelta@(trainableLayers[i].weights[:, 1:])
             deltas.append(currdelta)
-
+        gradDeltas = []
+        for delta, layer in zip(deltas[:-1], trainableLayers):
+            gradDeltas.append(delta * layer.grad)
         Deltas = []
         deltas.reverse()
-        for delta, layer in zip(deltas[1:], self.layers[1:]):
+        for delta, layer in zip(gradDeltas, self.layers[1:]):
             Deltas.append(delta.T@layer.passThrough)
-        print([delta.shape for delta in Deltas])
-        print([layer.weights.shape for layer in self.layers if layer.trainable])
 
     def setWeights(self, flattened_weights):
         prevSize = 0
