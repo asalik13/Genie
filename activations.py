@@ -31,3 +31,14 @@ def tanh(self, input):
     x = addOnes(input)@self.weights.T
     t = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
     return t
+
+
+def getActiv(self, input):
+    activations = {
+        'tanh': tanh,
+        'softmax': softmax,
+        'sigmoid': sigmoid,
+        'relu': relu
+    }
+
+    return activations.get(input, "Invalid activation")

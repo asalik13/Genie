@@ -32,8 +32,22 @@ class Model:
         passThrough = self.input
         for layer in self.layers:
             passThrough = layer.activate(passThrough)
+
         self.final = passThrough
         return self.final
+
+    def backpropagate(self, target):
+        deltas = []
+        trainableLayers = [layer for layer in self.layers if layer.trainable]
+        currdelta = self.final - target
+
+        deltas.append(currdelta)
+
+        for layer in reversed(trainableLayers):
+            print(currdelta.shape)
+            currdelta = currdelta@(layer.weights[:, 1:])
+            deltas.append(currdelta)
+
 
     def setWeights(self, flattened_weights):
         prevSize = 0
@@ -58,14 +72,6 @@ class Model:
             if layer.trainable:
                 flattened_weights.extend(layer.weights.ravel())
         return flattened_weights
-
-    def backpropagation(self, target):
-        finalLayer = self.layers[-1]
-        deltas = []
-        currdelta = finalLayer - target
-        deltas.append(currdelta)
-        for layer in reversed(self.layers[:-1]):
-            deltas.append(currdelta@layer.weights[:, 1:])
 
     def cost(self, target):
         self.feedforward()

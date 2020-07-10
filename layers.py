@@ -17,11 +17,12 @@ class Dense:
         if activation == 'relu':
             output = relu(self, input)
         elif activation == 'sigmoid':
-            output,_ = sigmoid(self, input)
+            output, grad = sigmoid(self, input)
         elif activation == 'tanh':
             output = tanh(self, input)
         elif activation == 'softmax':
             output = softmax(self, input)
+        self.grad = grad
         return output
 
     def compile(self, prev):
@@ -30,7 +31,7 @@ class Dense:
             self.shape, prev + 1)
 
         return self.shape
-
+    
 
 class Flatten:
     def __init__(self, input_shape):
