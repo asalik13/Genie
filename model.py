@@ -24,7 +24,6 @@ class Model:
             layer.last_layer = False
         self.layers[-1].last_layer = True
 
-
     def loss(self, y, lambda_=0.0):
         return getLoss(self.lossType)(self, y, lambda_)
 
@@ -34,6 +33,7 @@ class Model:
     def feedforward(self):
         passThrough = self.input
         for layer in self.layers:
+            layer.passThrough = passThrough
             passThrough = layer.activate(passThrough)
 
         self.final = passThrough
@@ -41,22 +41,23 @@ class Model:
 
     def backpropagate(self, target):
         deltas = []
-        trainableLayers = list(reversed([layer for layer in self.layers if layer.trainable]))
+        trainableLayers = list(
+            reversed([layer for layer in self.layers if layer.trainable]))
         currdelta = self.final - target
 
         deltas.append(currdelta)
 
-        for layer in trainableLayers:
-            print(currdelta.shape)
-            currdelta = currdelta@(layer.weights[:, 1:])
+        for i in range(len(trainableLayers)):
+            print(trainableLayers[i].grad.shape, currdelta.shape)
+            currdelta = currdelta@(trainableLayers[i].weights[:, 1:])*trainableLayers[i-1].grad
             deltas.append(currdelta)
 
-        deltas.reverse()
-
         Deltas = []
-
-
-
+        deltas.reverse()
+        for delta, layer in zip(deltas[1:], self.layers[1:]):
+            Deltas.append(delta.T@layer.passThrough)
+        print([delta.shape for delta in Deltas])
+        print([layer.weights.shape for layer in self.layers if layer.trainable])
 
     def setWeights(self, flattened_weights):
         prevSize = 0
