@@ -1,4 +1,5 @@
 import numpy as np
+from utils import addOnes
 from activations import relu, sigmoid, softmax, tanh
 
 
@@ -22,6 +23,9 @@ class Dense:
             output = tanh(self, input)
         elif activation == 'softmax':
             output = softmax(self, input)
+        if self.last_layer is False:
+            output = addOnes(output)
+
         self.grad = grad
         return output
 
@@ -31,7 +35,7 @@ class Dense:
             self.shape, prev + 1)
 
         return self.shape
-    
+
 
 class Flatten:
     def __init__(self, input_shape):
@@ -43,7 +47,11 @@ class Flatten:
         self.trainable = False
 
     def activate(self, input):
-        return input.reshape(input.shape[0], -1)
+        output = input.reshape(input.shape[0], -1)
+        if self.last_layer is False:
+            output = addOnes(output)
+        return output
+
 
     def compile(self, prev):
         return self.shape

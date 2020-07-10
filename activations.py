@@ -3,11 +3,11 @@ from utils import addOnes
 
 
 def relu(self, input):
-    return np.maximum(addOnes(input)@self.weights.T, 0)
+    return np.maximum(input@self.weights.T, 0)
 
 
 def sigmoid(self, input):
-    inputMat = addOnes(input)@self.weights.T
+    inputMat = input@self.weights.T
     activ = _sigmoid(inputMat)
     grad = activ * (1 - activ)
     return activ, grad
@@ -28,7 +28,7 @@ def softmax(self, input):
 
 
 def tanh(self, input):
-    x = addOnes(input)@self.weights.T
+    x = input@self.weights.T
     t = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
     return t
 

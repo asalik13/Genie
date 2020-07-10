@@ -1,5 +1,6 @@
 from loss import getLoss
 import numpy as np
+from utils import addOnes
 from optimizer import GA
 
 
@@ -18,9 +19,11 @@ class Model:
     def compile(self, loss):
         self.lossType = loss
         prev = None
-        self.layers[-1].last_layer = True
         for layer in self.layers:
             prev = layer.compile(prev)
+            layer.last_layer = False
+        self.layers[-1].last_layer = True
+
 
     def loss(self, y, lambda_=0.0):
         return getLoss(self.lossType)(self, y, lambda_)
@@ -38,15 +41,21 @@ class Model:
 
     def backpropagate(self, target):
         deltas = []
-        trainableLayers = [layer for layer in self.layers if layer.trainable]
+        trainableLayers = list(reversed([layer for layer in self.layers if layer.trainable]))
         currdelta = self.final - target
 
         deltas.append(currdelta)
 
-        for layer in reversed(trainableLayers):
+        for layer in trainableLayers:
             print(currdelta.shape)
             currdelta = currdelta@(layer.weights[:, 1:])
             deltas.append(currdelta)
+
+        deltas.reverse()
+
+        Deltas = []
+
+
 
 
     def setWeights(self, flattened_weights):
