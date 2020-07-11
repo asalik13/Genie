@@ -26,7 +26,8 @@ class Dense:
         if self.last_layer is False:
             output = addOnes(output)
 
-        self.grad = grad
+        if self.trainable:
+            self.grad = grad
         return output
 
     def compile(self, prev):

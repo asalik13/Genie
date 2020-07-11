@@ -35,28 +35,32 @@ class Model:
         for layer in self.layers:
             layer.passThrough = passThrough
             passThrough = layer.activate(passThrough)
-
         self.final = passThrough
         return self.final
 
     def backpropagate(self, target):
+        """
+        Returns gradients of trainable layers by backpropagation.
+        Regularization not added yet.
+        """
         deltas = []
         trainableLayers = list(
             reversed([layer for layer in self.layers if layer.trainable]))
         currdelta = self.final - target
 
-        deltas.append(currdelta)
-
         for i in range(len(trainableLayers)):
-            currdelta = currdelta@(trainableLayers[i].weights[:, 1:])
             deltas.append(currdelta)
-        gradDeltas = []
-        for delta, layer in zip(deltas[:-1], trainableLayers):
-            gradDeltas.append(delta * layer.grad)
+            currdelta = currdelta@(trainableLayers[i].weights[:, 1:])
+            if(i +1 < len(trainableLayers)):
+                currdelta *= (trainableLayers[i + 1].grad)
         Deltas = []
-        deltas.reverse()
-        for delta, layer in zip(gradDeltas, self.layers[1:]):
-            Deltas.append(delta.T@layer.passThrough)
+        for delta, layer in zip(deltas, trainableLayers):
+            Deltas.append((delta.T@layer.passThrough) / target.shape[0])
+        Deltas.reverse()
+        Gradients = []
+        for delta in Deltas:
+            Gradients.extend(delta.flatten())
+        return np.array(Gradients)
 
     def setWeights(self, flattened_weights):
         prevSize = 0
@@ -85,6 +89,9 @@ class Model:
     def cost(self, target):
         self.feedforward()
         J = self.loss(target)
+        print(J)
+        grad = self.backpropagate(target)
+        return J, grad
 
     def individual(self, _):
         self.compile(loss='binary_cross_entropy')

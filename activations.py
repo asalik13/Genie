@@ -8,17 +8,21 @@ def relu(self, input):
 
 def sigmoid(self, input):
     inputMat = input@self.weights.T
+    
     activ = _sigmoid(inputMat)
     grad = activ * (1 - activ)
     return activ, grad
 
 
 def _sigmoid(input):
-    return 1 / (1 + np.exp(-1 * input))
+    activ =  1.0 / (1.0 + np.exp(-input))
+    activ[activ == 1] = 0.9999
+    activ[activ == 0] = 0.0001
+    return activ
 
 
 def softmax(self, input):
-    input = sigmoid(self, input)
+    self.trainable = False
     result = []
     for i in input:
         result.append(np.exp(
