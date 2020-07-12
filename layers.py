@@ -32,8 +32,8 @@ class Dense:
 
     def compile(self, prev):
 
-        self.weights = np.random.rand(
-            self.shape, prev + 1)
+        self.weights = np.random.uniform(
+            low=-1, high=1, size=(self.shape, prev + 1))
 
         return self.shape
 
@@ -52,7 +52,6 @@ class Flatten:
         if self.last_layer is False:
             output = addOnes(output)
         return output
-
 
     def compile(self, prev):
         return self.shape

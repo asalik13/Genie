@@ -51,12 +51,14 @@ class Model:
         for i in range(len(trainableLayers)):
             deltas.append(currdelta)
             currdelta = currdelta@(trainableLayers[i].weights[:, 1:])
-            if(i +1 < len(trainableLayers)):
+            if(i + 1 < len(trainableLayers)):
                 currdelta *= (trainableLayers[i + 1].grad)
         Deltas = []
         for delta, layer in zip(deltas, trainableLayers):
             Deltas.append((delta.T@layer.passThrough) / target.shape[0])
         Deltas.reverse()
+        #print([(delta.shape, layer.weights.shape)
+        #       for delta, layer in zip(Deltas, reversed(trainableLayers))])
         Gradients = []
         for delta in Deltas:
             Gradients.extend(delta.flatten())
