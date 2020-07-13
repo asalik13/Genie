@@ -16,7 +16,7 @@ X = X.values.reshape((len(X), 28, 28))
 
 my_model = Model()
 my_model.addLayer(Flatten(input_shape=(28, 28)))
-my_model.addLayer(Dense(units=256, activation='sigmoid'))
+my_model.addLayer(Dense(units=54, activation='sigmoid'))
 my_model.addLayer(Dense(units=10, activation='sigmoid'))
 my_model.addLayer(Dense(units=10, activation='softmax'))
 my_model.compile(loss='binary_cross_entropy')
@@ -91,7 +91,3 @@ with open('mnist_weights.pkl', 'wb') as f:
 
 with open('mnist_weights.pkl', 'rb') as f:
     weights = pickle.load(f)
-
-
-
-
