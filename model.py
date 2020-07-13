@@ -38,10 +38,17 @@ class Model:
         self.final = passThrough
         return self.final
 
-    def backpropagate(self, target):
+    def predict(self, input):
+        prevInput = self.input
+        self.setInput(input)
+        self.feedforward()
+        output = self.final
+        self.setInput(prevInput)
+        return output
+
+    def backpropagate(self, target, lambda_=0.0):
         """
         Returns gradients of trainable layers by backpropagation.
-        Regularization not added yet.
         """
         deltas = []
         trainableLayers = list(
@@ -55,10 +62,11 @@ class Model:
                 currdelta *= (trainableLayers[i + 1].grad)
         Deltas = []
         for delta, layer in zip(deltas, trainableLayers):
-            Deltas.append((delta.T@layer.passThrough) / target.shape[0])
+            delta = delta.T@layer.passThrough / target.shape[0]
+            delta[:, 1:] = delta[:, 1:] + \
+                (lambda_ / target.shape[0]) * layer.weights[:, 1:]
+            Deltas.append(delta)
         Deltas.reverse()
-        #print([(delta.shape, layer.weights.shape)
-        #       for delta, layer in zip(Deltas, reversed(trainableLayers))])
         Gradients = []
         for delta in Deltas:
             Gradients.extend(delta.flatten())
@@ -88,11 +96,14 @@ class Model:
                 flattened_weights.extend(layer.weights.ravel())
         return flattened_weights
 
-    def cost(self, target):
+    def cost(self, target, lambda_=0.0):
         self.feedforward()
         J = self.loss(target)
-        print(J)
-        grad = self.backpropagate(target)
+        accuracy = np.argmax(target, axis=1) == np.argmax(self.final, axis=1)
+        accuracy = np.where(accuracy == 1)
+        accuracy = len(accuracy[0]) / target.shape[0] * 100
+        print(accuracy, '%')
+        grad = self.backpropagate(target, lambda_)
         return J, grad
 
     def individual(self, _):

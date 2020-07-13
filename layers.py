@@ -16,13 +16,13 @@ class Dense:
         activation = self.activation
         output = None
         if activation == 'relu':
-            output = relu(self, input)
+            output,grad = relu(self, input)
         elif activation == 'sigmoid':
             output, grad = sigmoid(self, input)
         elif activation == 'tanh':
-            output = tanh(self, input)
+            output,grad = tanh(self, input)
         elif activation == 'softmax':
-            output = softmax(self, input)
+            output,grad = softmax(self, input)
         if self.last_layer is False:
             output = addOnes(output)
 
