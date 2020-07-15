@@ -1,9 +1,10 @@
 # +
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from genie.model import Model
-from genie.layers import Dense, Flatten
+from model import Model
+from layers import Dense, Flatten
 from scipy import optimize
+from optimizer import Adam
 import numpy as np
 import pandas as pd
 
@@ -16,14 +17,13 @@ X = X.values.reshape((len(X), 28, 28))
 
 my_model = Model()
 my_model.addLayer(Flatten(input_shape=(28, 28)))
-my_model.addLayer(Dense(units=54, activation='sigmoid'))
+my_model.addLayer(Dense(units=100, activation='sigmoid'))
 my_model.addLayer(Dense(units=10, activation='sigmoid'))
 my_model.addLayer(Dense(units=10, activation='softmax'))
 my_model.compile(loss='binary_cross_entropy')
 
 my_model.setInput(X)
 Y = np.eye(10)[Y.reshape(-1)]
-print(Y)
 
 
 # +
@@ -32,9 +32,13 @@ w = my_model.getWeights()
 
 def costFunction(p):
     my_model.setWeights(p)
-    return my_model.cost(Y,lambda_ = 0.03)
+    return my_model.cost(Y, lambda_=0.03)
 
 
+opt = Adam()
+opt.train(costFunction, w)
+
+'''
 options = {'maxiter': 1000}
 
 res = optimize.minimize(costFunction,
@@ -91,3 +95,4 @@ with open('mnist_weights.pkl', 'wb') as f:
 
 with open('mnist_weights.pkl', 'rb') as f:
     weights = pickle.load(f)
+'''

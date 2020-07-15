@@ -1,7 +1,5 @@
 from loss import getLoss
 import numpy as np
-from utils import addOnes
-from optimizer import GA
 
 
 class Model:
@@ -9,7 +7,6 @@ class Model:
         self.layers = []
         self.weights = []
         self.final = None
-        self.optimizer = GA(self.individual, self.fitness)
 
     def addLayer(self, layer):
         self.layers.append(layer)
@@ -102,33 +99,14 @@ class Model:
         accuracy = np.argmax(target, axis=1) == np.argmax(self.final, axis=1)
         accuracy = np.where(accuracy == 1)
         accuracy = len(accuracy[0]) / target.shape[0] * 100
-        print(accuracy, '%')
-        grad = self.backpropagate(target, lambda_)
-        return J, grad
+        grad = 0#self.backpropagate(target, lambda_)
+        return J, grad,accuracy
 
-    def individual(self, _):
-        self.compile(loss='binary_cross_entropy')
-        weights = self.getWeights()
-        return weights
+    def costFunction(self, target, p):
+        self.setWeights(p)
+        return self.cost(target, lambda_=0.03)
 
-    def fitness(self, individual, target):
-        self.setWeights(individual)
-        self.feedforward()
-        return self.loss(target)
-
-    def train(self, popSize, y, epochs=1000):
-        p = self.optimizer.population(popSize)
-
-        prevGrade = self.optimizer.grade(p, y)
-
-        for i in range(epochs):
-            print(prevGrade, len(p), self.optimizer.fitness(p[0], y))
-            p = self.optimizer.evolve(p, y)
-            p = p[:popSize]
-            newGrade = self.optimizer.grade(p, y)
-            asteroid = abs(prevGrade - newGrade) + 0.5
-            p += self.optimizer.population(int(popSize / asteroid))
-
-            if newGrade - prevGrade < 0.00001:
-                p += self.optimizer.population(5 * popSize)
-            prevGrade = newGrade
+    def addOptimizer(self, opt):
+        self.opt = opt
+        self.opt.model = self
+        self.train = self.opt.train

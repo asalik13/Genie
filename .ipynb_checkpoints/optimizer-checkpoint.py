@@ -7,6 +7,8 @@ from progressbar import progressbar, ProgressBar
 
 
 class GA:
+    def __init__(self, model):
+        self.model = model
 
     def individual(self, _, loss='binary_cross_entropy'):
         '''
@@ -17,7 +19,9 @@ class GA:
         return weights
 
     def fitness(self, individual, target):
-        return self.model.loss(target)
+        self.model.setWeights(individual)
+        self.model.feedforward()
+        return self.loss(target)
 
     def population(self, count):
         """
@@ -75,10 +79,8 @@ class GA:
         childLength = len(parents[0])
         possibleNumParents = [i for i in range(
             1, min(childLength + 1, parents_length)) if childLength % i == 0]
-        possibleNumParents = possibleNumParents
-        print(possibleNumParents)
+        possibleNumParents = possibleNumParents[:-1]
         while len(children) < desired_length:
-
             numParents = sample(possibleNumParents, 1)[0]
             newChildParents = sample(parents, numParents)
             newChild = []
@@ -95,21 +97,21 @@ class GA:
         parents = [x[1] for x in sorted(parents, key=lambda x: x[0])]
         return parents
 
-    def train(self, input, y, popSize, epochs=1000):
-        p = self.population(popSize)
-        self.model.setInput(input)
+    def train(self, popSize, y, epochs=1000):
+        p = self.optimizer.population(popSize)
 
-        prevGrade = self.grade(p, y)
+        prevGrade = self.optimizer.grade(p, y)
 
         for i in range(epochs):
-            print(prevGrade, len(p), self.fitness(p[0], y))
-            p = self.evolve(p, y)
-            print('evolved')
+            print(prevGrade, len(p), self.optimizer.fitness(p[0], y))
+            p = self.optimizer.evolve(p, y)
             p = p[:popSize]
-            newGrade = self.grade(p, y)
+            newGrade = self.optimizer.grade(p, y)
+            asteroid = abs(prevGrade - newGrade) + 0.5
+            p += self.optimizer.population(int(popSize / asteroid))
+
             if newGrade - prevGrade < 0.00001:
-                p = p[:int(popSize * 2 / 100)] + \
-                    self.population(int(popSize * 98 / 100))
+                p += self.optimizer.population(5 * popSize)
             prevGrade = newGrade
 
 
@@ -120,14 +122,37 @@ class Adam:
     def train(self, input, target, epochs=500):
         m = 0
         v = 0
+        v_2 = 0
         t = 0
         i = 0
         self.model.setInput(input)
         w = self.model.getWeights()
+        self.w = w
         accuracy = 0
         for i in range(epochs):
             t += 1
             J, grad, accuracy = self.model.costFunction(target, w)
+            m = self.b1 * m + (1 - self.b1) * grad
+            v = self.b2 * v + (1 - self.b2) * np.square(grad)
+            m, v = m / (1 - self.b1**t), v / (1 - self.b2**t)
+            w -= self.a * m / (np.sqrt(v) + self.e)
+            i += 1
+        return accuracy
+
+    def trainR(self, input, target, epochs=500):
+        m = 0
+        v = 0
+        v_2 = 0
+        t = 0
+        i = 0
+        self.model.setInput(input)
+        w = self.w
+        accuracy = 0
+        for i in range(epochs):
+            t += 1
+            J, grad,accuracy = self.model.costFunction(target, w)
+            self.b1 = np.random.uniform(low = 0, high = 1, size = 1)
+            self.b2 = 1 - self.b1
             m = self.b1 * m + (1 - self.b1) * grad
             v = self.b2 * v + (1 - self.b2) * np.square(grad)
             m, v = m / (1 - self.b1**t), v / (1 - self.b2**t)

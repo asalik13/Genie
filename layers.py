@@ -1,6 +1,6 @@
 import numpy as np
 from utils import addOnes
-from activations import relu, sigmoid, softmax, tanh
+from activations import getActiv
 
 
 class Dense:
@@ -13,16 +13,9 @@ class Dense:
         self.last_layer = False
 
     def activate(self, input):
-        activation = self.activation
+        activationType = self.activation
         output = None
-        if activation == 'relu':
-            output,grad = relu(self, input)
-        elif activation == 'sigmoid':
-            output, grad = sigmoid(self, input)
-        elif activation == 'tanh':
-            output,grad = tanh(self, input)
-        elif activation == 'softmax':
-            output,grad = softmax(self, input)
+        output, grad = getActiv(activationType)(self.weights,input)
         if self.last_layer is False:
             output = addOnes(output)
 

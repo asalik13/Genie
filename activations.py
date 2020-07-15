@@ -1,9 +1,8 @@
 import numpy as np
-from utils import addOnes
 
 
-def relu(self, input):
-    inputMat = input@self.weights.T
+def relu(weights, input):
+    inputMat = input@weights.T
     activ = np.maximum(inputMat, 0)
     grad = np.copy(activ)
     grad[grad <= 0] = 0
@@ -11,8 +10,8 @@ def relu(self, input):
     return activ, grad
 
 
-def sigmoid(self, input):
-    inputMat = input@self.weights.T
+def sigmoid(weights, input):
+    inputMat = input@weights.T
 
     activ = _sigmoid(inputMat)
     grad = activ * (1 - activ)
@@ -26,8 +25,8 @@ def _sigmoid(input):
     return activ
 
 
-def softmax(self, inp):
-    inputMat = inp@self.weights.T
+def softmax(weights, inp):
+    inputMat = inp@weights.T
     result = []
     for i in inputMat:
         result.append(np.exp(
@@ -38,14 +37,14 @@ def softmax(self, inp):
     return result, grad
 
 
-def tanh(self, input):
-    x = input@self.weights.T
+def tanh(weights, input):
+    x = input@weights.T
     t = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
     grad = 1 - np.square(t)
     return t, grad
 
 
-def getActiv(self, input):
+def getActiv(input):
     activations = {
         'tanh': tanh,
         'softmax': softmax,
