@@ -21,14 +21,14 @@ class Model:
             layer.last_layer = False
         self.layers[-1].last_layer = True
 
-    def loss(self, y, lambda_=0.0):
-        return getLoss(self.lossType)(self, y, lambda_)
+    def loss(self, predicted, y, lambda_=0.0):
+        return getLoss(self.lossType)(self, predicted, y, lambda_)
 
     def setInput(self, input):
         self.input = input
 
     def feedforward(self):
-        passThrough = self.input
+        passThrough = self.batch
         for layer in self.layers:
             layer.passThrough = passThrough
             passThrough = layer.activate(passThrough)
@@ -36,11 +36,11 @@ class Model:
         return self.final
 
     def predict(self, input):
-        prevInput = self.input
-        self.setInput(input)
+        prevInput = self.batch
+        self.batch = input
         self.feedforward()
         output = self.final
-        self.setInput(prevInput)
+        self.batch = prevInput
         return output
 
     def backpropagate(self, target, lambda_=0.0):
@@ -93,18 +93,19 @@ class Model:
                 flattened_weights.extend(layer.weights.ravel())
         return flattened_weights
 
-    def cost(self, target, lambda_=0.0):
+    def cost(self, input, target, lambda_=0.0):
         self.feedforward()
-        J = self.loss(target)
-        accuracy = np.argmax(target, axis=1) == np.argmax(self.final, axis=1)
+        predicted = self.predict(input)
+        J = self.loss(predicted,target)
+        accuracy = np.argmax(target, axis=1) == np.argmax(predicted, axis=1)
         accuracy = np.where(accuracy == 1)
         accuracy = len(accuracy[0]) / target.shape[0] * 100
-        grad = 0#self.backpropagate(target, lambda_)
-        return J, grad,accuracy
+        grad = self.backpropagate(target, lambda_)
+        return J, grad, accuracy
 
-    def costFunction(self, target, p):
+    def costFunction(self, input, target, p):
         self.setWeights(p)
-        return self.cost(target, lambda_=0.03)
+        return self.cost(input, target, lambda_=0.03)
 
     def addOptimizer(self, opt):
         self.opt = opt

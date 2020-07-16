@@ -117,20 +117,28 @@ class Adam:
     def __init__(self, b1=0.5, b2=0.9, a=0.03, e=10e-8):
         self.b1, self.b2, self.a, self.e = b1, b2, a, e
 
-    def train(self, input, target, epochs=500):
+    def train(self, input, target, batch_size=60, epochs=500):
         m = 0
         v = 0
         t = 0
         i = 0
-        self.model.setInput(input)
         w = self.model.getWeights()
         accuracy = 0
+        self.model.setInput(input)
+        input = np.copy(input)
+
         for i in range(epochs):
-            t += 1
-            J, grad, accuracy = self.model.costFunction(target, w)
-            m = self.b1 * m + (1 - self.b1) * grad
-            v = self.b2 * v + (1 - self.b2) * np.square(grad)
-            m, v = m / (1 - self.b1**t), v / (1 - self.b2**t)
-            w -= self.a * m / (np.sqrt(v) + self.e)
+            print('epoch: ', i)
+            batches = np.array_split(input, batch_size)
+            for batch in batches:
+                self.model.batch = batch
+                t += 1
+                J, grad, accuracy = self.model.costFunction(input, target, w)
+                m = self.b1 * m + (1 - self.b1) * grad
+                v = self.b2 * v + (1 - self.b2) * np.square(grad)
+                m, v = m / (1 - self.b1**t), v / (1 - self.b2**t)
+                w -= self.a * m / (np.sqrt(v) + self.e)
+                print(accuracy)
             i += 1
+
         return accuracy
